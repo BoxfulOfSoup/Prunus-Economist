@@ -1,0 +1,307 @@
+<html style="margin: 0px">
+    <head style="margin: 0px">
+    <canvas id="pruEcoCanvas" width="80" height="80" style= "border:1px solid #31314f;margin: 0px">
+        <!-- Background -->
+    <img id="bg" src="Sprites/BG.png" alt="Background">
+    <img id="wet" src="Sprites/WetGround.png" alt="Wet Ground">
+    <img id="cover" src="Other/Cover.png" alt="Title Screen">
+        <!-- Currency -->
+    <img id="100000" src="Sprites/100s.png" alt="100$">
+    <img id="1000" src="Sprites/1s.png" alt="1$">
+    <img id="100" src="Sprites/10c.png" alt="10¢">
+    <img id="10" src="Sprites/1c.png" alt="1¢">
+        <!-- Shrub Levels -->
+    <img id="lvl1" src="Sprites/Lvl1.png" alt="Lvl1 Shrub">
+    <img id="lvl2" src="Sprites/Lvl2.png" alt="Lvl2 Shrub">
+    <img id="lvl3" src="Sprites/Lvl3.png" alt="Lvl3 Shrub">
+        <!-- GUI -->
+    <img id="buyButton" src="Sprites/BuyTree.png" alt="Buy Tree">
+    <img id="waterButton" src="Sprites/WaterButton.png" alt="Water Button">
+    <img id="tracker" src="Sprites/Tracker.png" alt="Tracker">
+    <img id="cursor" src="Sprites/Cursor.png" alt="Cursor">
+    <img id="dry1" src="Sprites/Dry1.png" alt="Dry1">
+    <img id="dry2" src="Sprites/Dry2.png" alt="Dry2">
+        <!-- Numbers -->
+    <img id="1" src="Sprites/1.png" alt="1">
+    <img id="2" src="Sprites/2.png" alt="2">
+    <img id="3" src="Sprites/3.png" alt="3">
+    <img id="4" src="Sprites/4.png" alt="4">
+    <img id="5" src="Sprites/5.png" alt="5">
+    <img id="6" src="Sprites/6.png" alt="6">
+    <img id="7" src="Sprites/7.png" alt="7">
+    <img id="8" src="Sprites/8.png" alt="8">
+    <img id="9" src="Sprites/9.png" alt="9">
+    <img id="0" src="Sprites/0.png" alt="0">
+    <img id="¢" src="Sprites/Cent.png" alt="¢">
+        <!-- Letters -->
+    <img id="a" src="Sprites/a.png" alt="a">
+    <img id="b" src="Sprites/b.png" alt="b">
+    <img id="c" src="Sprites/c.png" alt="c">
+    <img id="d" src="Sprites/d.png" alt="d">
+    <img id="e" src="Sprites/e.png" alt="e">
+    <img id="f" src="Sprites/f.png" alt="f">
+    <img id="g" src="Sprites/g.png" alt="g">
+    <img id="h" src="Sprites/h.png" alt="h">
+    <img id="i" src="Sprites/i.png" alt="i">
+    <img id="j" src="Sprites/j.png" alt="j">
+    <img id="k" src="Sprites/k.png" alt="k">
+    <img id="l" src="Sprites/l.png" alt="l">
+    <img id="m" src="Sprites/m.png" alt="m">
+    <img id="n" src="Sprites/n.png" alt="n">
+    <img id="o" src="Sprites/o.png" alt="o">
+    <img id="p" src="Sprites/p.png" alt="p">
+    <img id="q" src="Sprites/q.png" alt="q">
+    <img id="r" src="Sprites/r.png" alt="r">
+    <img id="s" src="Sprites/s.png" alt="s">
+    <img id="t" src="Sprites/t.png" alt="t">
+    <img id="u" src="Sprites/u.png" alt="u">
+    <img id="v" src="Sprites/v.png" alt="v">
+    <img id="w" src="Sprites/w.png" alt="w">
+    <img id="x" src="Sprites/x.png" alt="x">
+    <img id="y" src="Sprites/y.png" alt="y">
+    <img id="z" src="Sprites/z.png" alt="z">
+        <!-- Audio -->
+    <audio id="chaching" src="Audio/Chaching.wav">
+    <audio id="buySFX" src="Audio/Buy.wav">
+    <audio id="waterSFX" src="Audio/Water.wav">
+    <audio id="drySFX" src="Audio/Dry.wav">
+    <audio id="coolTune" src="Audio/CoolTune.wav">
+    <script>
+//SFX Program : JSFXR
+//Art Program : Aseprite
+//Music Program : MPC Beats
+//Music Credit : Linxin
+var shrub = []
+var cashPos = []
+var cash = 50000
+var day = 0
+var timeOfDay = 0-1
+var wateredToday = false
+//Canvas
+var setCanvas = document.getElementById("pruEcoCanvas");
+var drawCanvas = setCanvas.getContext("2d");
+drawCanvas.imageSmoothingEnabled = false
+var size = 4
+var fps = 60
+function resize (){
+	var smallSize = window.innerHeight
+	if (window.innerWidth < smallSize){
+		smallSize = window.innerWidth
+	}
+	size = smallSize/82
+	if (size <= 1){size = 1}
+}
+function img (name){
+    return document.getElementById(name)
+}
+function drawImg (name, x, y){
+    drawCanvas.imageSmoothingEnabled = false
+    var image = img (name)
+    drawCanvas.drawImage(image,x*size,y*size,image.width*size,image.height*size)
+}
+function drawAll (){
+    //Canvas
+	resize ()
+    setCanvas.width = 80*size;setCanvas.height = 80*size
+    setCanvas.style = "border:"+size+"px solid #31314f"
+    if (running == false){
+        drawImg("cover",0,0)
+        drawImg ("cursor", mousePos.x, mousePos.y)
+        setTimeout(() => drawAll (), 1000/fps)
+        return 'hi'
+    }
+    //Collect Cash
+    collectCash()
+    //BG
+    drawImg ("bg", 0, 0)
+    //Shrubs
+    for (dIFor of shrub){
+        drawImg ("lvl"+dIFor.lvl, dIFor.offset, 0)
+        if (dIFor.dryness >= 1){
+            drawImg ("dry"+dIFor.dryness, dIFor.offset, 0)
+        }
+    }
+    //-Money
+    for (dIFor of cashPos){
+        drawImg (dIFor.value, dIFor.x, dIFor.y)
+    }
+    //Ground
+    if (wateredToday){
+        drawImg ("wet", 0, 0)
+    }
+    //Time
+    drawCanvas.globalAlpha = ((Math.abs(timeOfDay-12))**2)/200
+    drawCanvas.fillRect(0,0,80*size,80*size)
+    drawCanvas.globalAlpha = 1
+    //GUI
+    //-Trackers
+    var costText = cost+"¢cost"
+    drawImg ("tracker", 0-80+((costText.length*5)+2), 16)
+    for (dIFor in costText){
+        drawImg (costText[dIFor], (dIFor*5)+1, 18)
+    }
+    var dayText = day+"day"
+    if (day != 1){dayText += "s"}
+    drawImg ("tracker", 0-80+((dayText.length*5)+2), 29)
+    for (dIFor in dayText){
+        drawImg (dayText[dIFor], (dIFor*5)+1, 31)
+    }
+    var treeText = shrub.length+"tree"
+    if (shrub.length != 1){treeText += "s"}
+    drawImg ("tracker", 0-80+((treeText.length*5)+2), 64)
+    for (dIFor in treeText){
+        drawImg (treeText[dIFor], (dIFor*5)+1, 66)
+    }
+    var cashText = cash+"¢"
+    drawImg ("tracker", 0-80+((cashText.length*5)+2), 72)
+    for (dIFor in cashText){
+        drawImg (cashText[dIFor], (dIFor*5)+1, 74)
+    }
+    //-Button
+    onBuyY = 0-4
+    onWaterY = 0-4
+    if (mousePos.y <= 12 && mousePos.x <= 48){
+        onBuyY = 0
+    }
+    if (mousePos.y <= 12 && mousePos.x >= 48){
+        onWaterY = 0
+    }
+    drawImg ("buyButton", 0, onBuyY)
+    drawImg ("waterButton", 0, onWaterY)
+    //-Cursor
+    drawImg ("cursor", mousePos.x, mousePos.y)
+    setTimeout(() => drawAll (), 1000/fps)
+}
+//Audio
+document.getElementById("coolTune").volume = 0.3
+function playThis (audio){
+    document.getElementById(audio).play()
+}
+//Wait
+var running = false
+function waitAnHour (){
+    //Grow Cash
+    growCash()
+    //Time
+    timeOfDay += 1
+    if (timeOfDay == 24){
+        timeOfDay = 0
+        day += 1
+        if (wateredToday == false && shrub.length >= 1){
+            playThis("drySFX")
+            for (var wAHFor = 0;wAHFor < shrub.length;wAHFor += 1){
+                shrub[wAHFor].dryness += 1
+                if (shrub[wAHFor].dryness >= 3){
+                    shrub.splice(wAHFor,1)
+                    wAHFor -= 1
+                }
+            }
+        }
+        wateredToday = false
+    }
+    if (running){
+        setTimeout(() => playThis ("coolTune"), 1)
+        setTimeout(() => waitAnHour (), 10000/12)
+    }
+}
+function growCash(){
+    for (wAHFor of shrub){
+        //Age
+        wAHFor.age += 1
+        if (wAHFor.age == (5*24)){
+            wAHFor.lvl = 2
+        }
+        if (wAHFor.age == (15*24)){
+            wAHFor.lvl = 3
+        }
+        //Set Positions
+        var minPos = [wAHFor.offset+23,23]
+        var maxPos = [wAHFor.offset+56-8,56-8]
+        if (wAHFor.lvl == 1 || wAHFor.lvl == 2){
+            minPos[0] = wAHFor.offset+31
+            maxPos[0] = wAHFor.offset+48-8
+            if (wAHFor.lvl == 1){
+                minPos[1] = 39
+            }
+        }
+        for (var wAHFor2 = 0;wAHFor2 < wAHFor.lvl;wAHFor2 += 1){
+			if (cashPos.length >= 500){return "hi"}
+            //Value
+            var value = 10
+            while (value <= 100 && Math.round(Math.random()) == 1){
+                value *= 10
+            }
+            if (value == 1000 && Math.round(Math.random()-0.25) == 1){
+                value *= 100
+            }
+            //Pos
+            var cashX = Math.floor(Math.random() * (maxPos[0] - minPos[0])) + minPos[0]
+            var cashY = Math.floor(Math.random() * (maxPos[1] - minPos[1])) + minPos[1]
+            cashPos.push({
+                value:value,
+                x:cashX,
+                y:cashY
+            })
+        }
+    }
+}
+//Buy Tree
+var cost = 50000
+function buyTree (){
+    if (cash >= cost){
+        cash -= cost
+        shrub.push({lvl : 1, offset : Math.floor(Math.random()*47)-23, dryness : 0, age : 0})
+        playThis("buySFX")
+        cost *= 2
+    }
+}
+//Water
+function water (){
+    wateredToday = true
+    playThis("waterSFX")
+}
+//Collect Cash
+function collectCash (){
+    for (var cCFor = 0;cCFor < cashPos.length;cCFor += 1){
+        if (mousePos.x >= cashPos[cCFor].x && mousePos.y >= cashPos[cCFor].y &&
+        mousePos.x <= cashPos[cCFor].x+8 && mousePos.y <= cashPos[cCFor].y+8){
+            playThis ("chaching")
+            cash += (cashPos[cCFor].value/10)
+            cashPos.splice(cCFor,1)
+            cCFor -= 1
+        }
+    }
+}
+//Input
+var mousePos = {
+    x : 0,
+    y : 0
+}
+setCanvas.addEventListener('mousemove', function (event) {
+    var boundingBox = setCanvas.getBoundingClientRect();
+    mousePos = {
+        x : (event.x-boundingBox.left)/size,
+        y : (event.y-boundingBox.top)/size
+    }
+})
+setCanvas.addEventListener('mousedown', function (event) {
+    if (mousePos.y <= 12 && mousePos.x <= 48){
+        buyTree(false)
+    }
+    if (mousePos.y <= 12 && mousePos.x >= 48){
+        water()
+    }
+    if (running == false){
+        running = true
+        buyTree ()
+        waitAnHour ()
+		setTimeout(() => playThis ("coolTune"), 1)
+    }
+})
+//Start
+setTimeout(() => drawAll (), 100)
+    </script>
+    </head>
+    <body style="margin: 0px">
+    </body>
+</html>
